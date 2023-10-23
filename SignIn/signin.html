@@ -1,0 +1,175 @@
+
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    </meta>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            width: 100%;
+            height: 100%;
+            background-color: white;
+        }
+
+        body {
+            font-family: Microsoft YaHei, serif;
+        }
+
+        .container {
+            display: inline-block;
+            width: 400px;
+        }
+
+        .head-img img {
+            width: 400px;
+            height: 240px;
+            overflow: hidden;
+        }
+
+        .content {
+            width: 360px;
+            padding: 10px 20px;
+        }
+
+        .sign-info {
+            color: rgb(135, 135, 135);
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .yunshi-info {
+            color: rgb(135, 135, 135);
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        progress {
+            border-radius: 0;
+            width: 168px;
+            height: 10px;
+            color: #FFA500FF; /*兼容IE10的已完成进度背景*/
+            border: none;
+            background: #d7d7d7; /*这个属性也可当作Chrome的已完成进度背景，只不过被下面的::progress-bar覆盖了*/
+        }
+
+        progress::-webkit-progress-bar {
+            background-color: #d7d7d7;
+        }
+        progress::-webkit-progress-value {
+            background-color: #FFA500FF;
+        }
+        progress::-webkit-progress-value, progress::-moz-progress-bar {
+            background: #FFA500FF;
+        }
+    </style>
+</head>
+{% set res=dic %}
+<body>
+<div id="app">
+    <div class="container">
+        <div class="head-img">
+            <img src="https://www.yuanxiapi.cn/api/img/?type=dongman"/>
+        </div>
+        <div class="content">
+            <div style="font-size: 30px;font-weight: 1000;font-family: Microsoft YaHei,serif;float: left;">
+                {{res.good}}
+            </div>
+            <div style="color: gray;font-size: 14px;font-weight: 700;font-family: Microsoft YaHei,serif;float: right">
+                <div>{{res.time_M}}</div>
+                <div>{{res.time_S}}</div>
+            </div>
+            <div style="clear: both;"></div>
+            <div class="sign-info">
+                <div>@{{ res.name }} 好感度+1 硬币+{{res.addCoin}}</div>
+                <div>已签到{{res.signDay}}天</div>
+                <div>当前好感度: {{res.favorability}}</div>
+                <div>当前硬币:{{res.coin}}</div>
+                <div style="margin: 5px 0;font-size: 22px;font-family: ProggySquareTTSZ,serif">Level 1</div>
+                <progress value="22" max="100"></progress>
+            </div>
+            <div class="yunshi-info">
+                <div style="font-size: 20px;font-weight: 1000;font-family: Microsoft YaHei,serif"><font
+                        color="#E0A0A0">今</font><font color="#FFC060">日</font><font color="#FFC020">运</font><font
+                        color="#FFC000">势</font>
+                </div>
+                <div style="font-size: 15px;font-weight: 1000;font-family: Microsoft YaHei,serif;margin-top: 10px">宜:
+                </div>
+                <div>{{res.yes[0]}}</div>
+                <div>{{res.yes[1]}}</div>
+                <div style="font-size: 15px;font-weight: 1000;font-family: Microsoft YaHei,serif;margin-top: 10px">忌:
+                </div>
+                <div>{{res.no[0]}}</div>
+                <div>{{res.no[1]}}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            time: "--/--",
+            nongli: "--/--",
+            yes: [],
+            no: [],
+            name: 'Hello Vue!',
+            addCoin: 0,
+            coin: 0,
+            signDay: 0,
+            favorability: 0
+        },
+        mounted() {
+            this.name = decodeURIComponent(this.getQueryString("name"));
+            this.nongli = decodeURIComponent(this.getQueryString("nongli"));
+            this.time = this.dateFtt("MM/dd", new Date())
+            this.signDay = this.getQueryString("signDay");
+            this.coin = this.getQueryString("coin");
+            this.addCoin = this.getQueryString("addCoin");
+            this.favorability = this.getQueryString("favorability");
+            this.yes = decodeURIComponent(this.getQueryString("yes")).split("|");
+            this.no = decodeURIComponent(this.getQueryString("no")).split("|");
+        },
+        methods: {
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var r = window.location.search.substr(1).match(reg); //获取url中"?"符后的字符串并正则匹配
+                var context = "";
+                if (r != null)
+                    context = r[2];
+                reg = null;
+                r = null;
+                return context == null || context === "" || context === "undefined" ? "" : context;
+            },
+            dateFtt(fmt, date) {
+                var o = {
+                    "M+": date.getMonth() + 1,                 //月份
+                    "d+": date.getDate(),                    //日
+                    "h+": date.getHours(),                   //小时
+                    "m+": date.getMinutes(),                 //分
+                    "s+": date.getSeconds(),                 //秒
+                    "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                    "S": date.getMilliseconds()             //毫秒
+                };
+                if (/(y+)/.test(fmt))
+                    fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+                for (var k in o)
+                    if (new RegExp("(" + k + ")").test(fmt))
+                        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                return fmt;
+            }
+
+        }
+    })
+</script>
+</body>
+
+</html>

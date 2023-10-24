@@ -2,12 +2,11 @@
 # The road is nothing，the end is all    --Demon
 import random
 import base64
-import os
+
 import time
 
 from jinja2 import Environment, FileSystemLoader
 from html2image import Html2Image
-from libs.db.scoreboard import DataStorage
 from libs.event.qqevent import onkeyword
 
 
@@ -42,14 +41,29 @@ def parameter():
         gd = '上午好'
     elif int(t[-8:-6])<13:  # 中午好
         gd = '中午好'
-    elif int(t[-8:-6])<17: # 下午好
+    elif int(t[-8:-6])<17:  # 下午好
         gd = '下午好'
     elif int(t[-8:-6])<19:  # 傍晚好
         gd = '傍晚好'
     elif int(t[-8:-6])<24:  # 晚上好
         gd = '晚上好'
 
-    return gd,t1,t2,x,y
+    with open('plugins/SignIn/entry.josn', 'r',encoding='utf8') as f:
+        da = eval(f.read())
+        lst = random.sample(da,4)
+        del lst[0]['bad']  # 删除字典的忌
+        del lst[1]['good'] # 删除字典的宜
+        del lst[2]['bad']  # 删除字典的忌
+        del lst[3]['good']  # 删除字典的宜
+        good1 = lst[0]['name']+' -- '+lst[0]['good']
+        good2 = lst[2]['name']+' -- '+lst[2]['good']
+        bad1 = lst[1]['name']+' -- '+lst[1]['bad']
+        bad2 = lst[3]['name']+' -- '+lst[3]['bad']
+
+
+        print(good1)
+
+    return good1,good2,bad1,bad2,gd,t1,t2,x,y
 
 # 图片转为base64码的函数，需要将传入一个图片路径
 def encode_images_to_base64():
@@ -65,11 +79,10 @@ def encode_images_to_base64():
 
 @onkeyword(keywordList=["@签到"])
 async def handle(n):
-    gd,t1,t2,x,y = parameter()  # 问候，时间，钱，好感
-
+    good1,good2,bad1,bad2,gd,t1,t2,x,y = parameter()  # 问候，时间，钱，好感
 
     res = {'good': gd, 'time_M': t1, 'time_S': t2, 'name': n.netpackage.getSender().nickname, 'addCoin': x, 'signDay': 100, 'favorability': y
-            ,'coin': 10, 'yes': ["one", 'two'], 'no': ['one', 'two']
+            ,'coin': 10, 'yes': [good1, good2], 'no': [bad1, bad2]
               }
 
     generate_html(res)
